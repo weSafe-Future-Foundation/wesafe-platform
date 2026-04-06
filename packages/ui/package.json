@@ -1,0 +1,24 @@
+{
+  "name": "@wesafe/ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./components/index.ts",
+  "types": "./components/index.ts",
+  "scripts": {
+    "build": "echo 'No build required'",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint ./components"
+  },
+  "dependencies": {
+    "clsx": "^2.1.0",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "react": "^19.0.0",
+    "@types/react": "^19.0.0",
+    "typescript": "^5.7.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  }
+}

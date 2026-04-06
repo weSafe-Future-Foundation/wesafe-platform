@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* ===========================================
+   weSafe Future Foundation - Design System
+   Colors: Blues + Greens | Fonts: Inter + Poppins
+   =========================================== */
+
+@theme {
+  /* Brand Colors - weSafe Palette */
+  --color-wesafe-blue-50: #EFF6FF;
+  --color-wesafe-blue-100: #DBEAFE;
+  --color-wesafe-blue-200: #BFDBFE;
+  --color-wesafe-blue-300: #93C5FD;
+  --color-wesafe-blue-400: #60A5FA;
+  --color-wesafe-blue-500: #3B82F6;
+  --color-wesafe-blue-600: #2563EB;
+  --color-wesafe-blue-700: #1D4ED8;
+  --color-wesafe-blue-800: #1E40AF;
+  --color-wesafe-blue-900: #1E3A8A;
+
+  --color-wesafe-green-50: #F0FDF4;
+  --color-wesafe-green-100: #DCFCE7;
+  --color-wesafe-green-200: #BBF7D0;
+  --color-wesafe-green-300: #86EFAC;
+  --color-wesafe-green-400: #4ADE80;
+  --color-wesafe-green-500: #22C55E;
+  --color-wesafe-green-600: #16A34A;
+  --color-wesafe-green-700: #15803D;
+  --color-wesafe-green-800: #166534;
+  --color-wesafe-green-900: #14532D;
+
+  /* WESAFE Element Colors */
+  --color-water: #0EA5E9;
+  --color-earth: #84CC16;
+  --color-space: #6366F1;
+  --color-air: #67E8F9;
+  --color-fire: #F97316;
+  --color-energy: #FACC15;
+
+  /* Font families */
+  --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-body);
+  color: #111827;
+  background-color: #FFFFFF;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}

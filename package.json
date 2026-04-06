@@ -1,0 +1,33 @@
+{
+  "name": "wesafe-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "weSafe Future Foundation - One Platform, One Data Cloud",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "libs/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "db:generate": "npm -w libs/database run generate",
+    "db:push": "npm -w libs/database run push",
+    "db:migrate": "npm -w libs/database run migrate",
+    "db:seed": "npm -w libs/database run seed",
+    "db:studio": "npm -w libs/database run studio",
+    "clean": "turbo clean",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "prettier": "^3.5.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

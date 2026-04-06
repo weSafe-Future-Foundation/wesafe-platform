@@ -1,0 +1,441 @@
+// ===========================================
+// weSafe Future Foundation - Data Cloud Schema
+// One Database, All Products
+// ===========================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// CORE: Users & Authentication
+// ===========================================
+
+enum UserRole {
+  STUDENT
+  COMPANY
+  VOLUNTEER
+  DONOR
+  ADMIN
+}
+
+enum AuthProvider {
+  GOOGLE
+  EMAIL
+  PHONE
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String?
+  phone         String?      @unique
+  passwordHash  String?
+  avatarUrl     String?
+  role          UserRole     @default(STUDENT)
+  authProvider  AuthProvider  @default(EMAIL)
+  isVerified    Boolean      @default(false)
+  isActive      Boolean      @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  studentProfile    StudentProfile?
+  donations         Donation[]
+  contactForms      ContactForm[]
+  marketingContact  MarketingContact?
+  sessions          Session[]
+  accounts          Account[]
+
+  @@map("users")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ===========================================
+// STUDENTS: Profiles & Community
+// ===========================================
+
+model StudentProfile {
+  id                       String   @id @default(cuid())
+  userId                   String   @unique
+  college                  String?
+  degree                   String?
+  graduationYear           Int?
+  skills                   String[] @default([])
+  region                   String?
+  bio                      String?  @db.Text
+  linkedinUrl              String?
+  githubUrl                String?
+  profileCompletionPercent Int      @default(0)
+  leaderboardPoints        Int      @default(0)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  // Relations
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  registrations  EventRegistration[]
+  certificates   Certificate[]
+  leaderboard    Leaderboard?
+
+  @@map("student_profiles")
+}
+
+// ===========================================
+// EVENTS: Hackathons & Activities
+// ===========================================
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum EventRegion {
+  NORTH
+  SOUTH
+  EAST
+  WEST
+  CENTRAL
+  NORTHEAST
+  NATIONAL
+}
+
+model Event {
+  id               String      @id @default(cuid())
+  title            String
+  slug             String      @unique
+  description      String      @db.Text
+  shortDescription String?
+  startDate        DateTime
+  endDate          DateTime
+  registrationDeadline DateTime?
+  venue            String?
+  isOnline         Boolean     @default(false)
+  meetingLink      String?
+  region           EventRegion
+  status           EventStatus @default(DRAFT)
+  maxParticipants  Int?
+  entryFee         Decimal?    @db.Decimal(10, 2)
+  prizePool        String?
+  bannerImageUrl   String?
+  galleryUrls      String[]    @default([])
+  schedule         Json?       // Structured schedule data
+  tags             String[]    @default([])
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  // Relations
+  registrations EventRegistration[]
+  certificates  Certificate[]
+
+  @@map("events")
+}
+
+enum RegistrationStatus {
+  REGISTERED
+  CONFIRMED
+  ATTENDED
+  COMPLETED
+  CANCELLED
+}
+
+model EventRegistration {
+  id        String             @id @default(cuid())
+  studentId String
+  eventId   String
+  teamName  String?
+  status    RegistrationStatus @default(REGISTERED)
+  score     Int?
+  rank      Int?
+  feedback  String?            @db.Text
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  // Relations
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  event   Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, eventId])
+  @@map("event_registrations")
+}
+
+// ===========================================
+// CERTIFICATES
+// ===========================================
+
+enum CertificateType {
+  PARTICIPATION
+  WINNER
+  RUNNER_UP
+  MENTOR
+  VOLUNTEER
+  SPEAKER
+}
+
+model Certificate {
+  id               String          @id @default(cuid())
+  studentId        String
+  eventId          String
+  type             CertificateType
+  certificateUrl   String          // Cloudflare R2 URL
+  verificationCode String          @unique @default(cuid())
+  sharedOnLinkedin Boolean         @default(false)
+  issuedAt         DateTime        @default(now())
+
+  // Relations
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  event   Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("certificates")
+}
+
+// ===========================================
+// LEADERBOARD
+// ===========================================
+
+model Leaderboard {
+  id               String  @id @default(cuid())
+  studentId        String  @unique
+  region           String?
+  totalPoints      Int     @default(0)
+  hackathonPoints  Int     @default(0)
+  communityPoints  Int     @default(0)
+  monthlyRank      Int?
+  allTimeRank      Int?
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("leaderboard")
+}
+
+// ===========================================
+// DONATIONS
+// ===========================================
+
+enum DonationStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Donation {
+  id                String         @id @default(cuid())
+  userId            String?
+  donorName         String
+  donorEmail        String
+  donorPhone        String?
+  donorPan          String?        // For 80G receipts
+  amount            Decimal        @db.Decimal(10, 2)
+  currency          String         @default("INR")
+  status            DonationStatus @default(PENDING)
+  razorpayOrderId   String?        @unique
+  razorpayPaymentId String?        @unique
+  isRecurring       Boolean        @default(false)
+  receipt80gUrl     String?        // Auto-generated 80G receipt
+  message           String?        @db.Text
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("donations")
+}
+
+// ===========================================
+// CONTACT FORMS
+// ===========================================
+
+enum ContactType {
+  GENERAL
+  SPONSORSHIP
+  VOLUNTEER
+  MEDIA
+  PARTNERSHIP
+}
+
+model ContactForm {
+  id        String      @id @default(cuid())
+  userId    String?
+  name      String
+  email     String
+  phone     String?
+  type      ContactType @default(GENERAL)
+  subject   String
+  message   String      @db.Text
+  isRead    Boolean     @default(false)
+  repliedAt DateTime?
+  createdAt DateTime    @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("contact_forms")
+}
+
+// ===========================================
+// MARKETING ENGINE
+// ===========================================
+
+model MarketingContact {
+  id              String   @id @default(cuid())
+  userId          String?  @unique
+  email           String   @unique
+  name            String?
+  tags            String[] @default([])
+  engagementScore Int      @default(0)
+  source          String   @default("signup") // signup, import, event
+  isSubscribed    Boolean  @default(true)
+  unsubscribedAt  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user      User?      @relation(fields: [userId], references: [id])
+  emailLogs EmailLog[]
+
+  @@map("marketing_contacts")
+}
+
+model Segment {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  rules        Json     // Filter rules: { region: "north", role: "student" }
+  contactCount Int      @default(0)
+  autoUpdate   Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  campaigns Campaign[]
+
+  @@map("segments")
+}
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  name      String
+  subject   String
+  bodyHtml  String   @db.Text  // React Email rendered HTML
+  bodyReact String?  @db.Text  // React Email component source
+  variables String[] @default([]) // Available template variables
+  category  String?
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  campaigns Campaign[]
+
+  @@map("email_templates")
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  name        String
+  templateId  String
+  segmentId   String
+  status      CampaignStatus @default(DRAFT)
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  stats       Json?          // { sent, delivered, opened, clicked, bounced }
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  template  EmailTemplate @relation(fields: [templateId], references: [id])
+  segment   Segment       @relation(fields: [segmentId], references: [id])
+  emailLogs EmailLog[]
+
+  @@map("campaigns")
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  COMPLAINED
+}
+
+model EmailLog {
+  id              String      @id @default(cuid())
+  campaignId      String
+  contactId       String
+  status          EmailStatus @default(QUEUED)
+  resendMessageId String?
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  openedAt        DateTime?
+  clickedAt       DateTime?
+  bouncedAt       DateTime?
+  createdAt       DateTime    @default(now())
+
+  // Relations
+  campaign Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact  MarketingContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@map("email_logs")
+}
