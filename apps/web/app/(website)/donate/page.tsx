@@ -151,7 +151,7 @@ export default function DonatePage() {
                     Coming Soon
                   </p>
                   <p className="text-yellow-700 text-xs mt-1">
-                    Razorpay integration launching in April 2026
+                    Razorpay integration launching soon
                   </p>
                 </div>
                 <button
@@ -181,20 +181,10 @@ export default function DonatePage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600">Bank Name</p>
+                    <p className="text-xs text-gray-600">Bank Details</p>
                     <p className="font-semibold text-gray-900">
-                      [Bank Details]
+                      Details will be available once our bank account is set up. Please contact us at donate@wesafefuture.org for any donation inquiries.
                     </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600">Account Number</p>
-                    <p className="font-semibold text-gray-900">
-                      [Account Number]
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600">IFSC Code</p>
-                    <p className="font-semibold text-gray-900">[IFSC Code]</p>
                   </div>
                 </div>
                 <button className="w-full mt-6 px-4 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">
@@ -460,7 +450,7 @@ export default function DonatePage() {
               {
                 question: "Which payment methods do you accept?",
                 answer:
-                  "We currently accept Bank Transfers and UPI payments. Razorpay integration for card payments is coming soon in April 2026.",
+                  "We currently accept Bank Transfers and UPI payments. Razorpay integration for card payments is coming soon.",
               },
               {
                 question: "Can I get a receipt for my donation?",

@@ -35,6 +35,9 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-3 text-sm text-gray-400">
+              Care Today, Sustain Tomorrow
+            </p>
+            <p className="mt-2 text-sm text-gray-400">
               W.E.S.A.F.E
               <br />
               Water . Earth . Space . Air . Fire . Energy
@@ -42,7 +45,9 @@ export function Footer() {
             <p className="mt-4 text-sm text-gray-500">
               Section 8 Non-Profit Organization
               <br />
-              Empowering youth through technology
+              Graphix Tower 2, A-13, Sector 62
+              <br />
+              Noida, UP — 201301
             </p>
           </div>
 

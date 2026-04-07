@@ -29,28 +29,28 @@ export default function EventsPage() {
   const upcomingEvents = [
     {
       title: "Hackathon 2026",
-      date: "March 15-17, 2026",
+      date: "June 15-17, 2026",
       region: "north",
       location: "Delhi",
       participants: "500+",
     },
     {
       title: "Web Dev Workshop",
-      date: "March 20, 2026",
+      date: "June 20, 2026",
       region: "south",
       location: "Bangalore",
       participants: "150",
     },
     {
       title: "AI/ML Summit",
-      date: "March 25-26, 2026",
+      date: "June 25-26, 2026",
       region: "west",
       location: "Mumbai",
       participants: "300+",
     },
     {
       title: "Code Sprint",
-      date: "April 5, 2026",
+      date: "May 15, 2026",
       region: "east",
       location: "Kolkata",
       participants: "200",

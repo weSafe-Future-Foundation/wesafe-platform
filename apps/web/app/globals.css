@@ -6,36 +6,37 @@
    =========================================== */
 
 @theme {
-  /* Brand Colors - weSafe Palette */
-  --color-wesafe-blue-50: #EFF6FF;
-  --color-wesafe-blue-100: #DBEAFE;
-  --color-wesafe-blue-200: #BFDBFE;
-  --color-wesafe-blue-300: #93C5FD;
-  --color-wesafe-blue-400: #60A5FA;
-  --color-wesafe-blue-500: #3B82F6;
-  --color-wesafe-blue-600: #2563EB;
-  --color-wesafe-blue-700: #1D4ED8;
-  --color-wesafe-blue-800: #1E40AF;
-  --color-wesafe-blue-900: #1E3A8A;
+  /* Brand Colors - weSafe Palette (from Brand Kit 2026) */
+  --color-wesafe-blue-50: #EBF4FF;
+  --color-wesafe-blue-100: #BDD9F8;
+  --color-wesafe-blue-200: #8EBCF0;
+  --color-wesafe-blue-400: #378ADD;
+  --color-wesafe-blue-500: #1558A8;
+  --color-wesafe-blue-600: #1558A8;
+  --color-wesafe-blue-700: #0B3D7A;
+  --color-wesafe-blue-800: #0B3D7A;
+  --color-wesafe-blue-900: #062550;
 
   --color-wesafe-green-50: #F0FDF4;
-  --color-wesafe-green-100: #DCFCE7;
-  --color-wesafe-green-200: #BBF7D0;
-  --color-wesafe-green-300: #86EFAC;
+  --color-wesafe-green-100: #BBF7D0;
+  --color-wesafe-green-200: #86EFAC;
   --color-wesafe-green-400: #4ADE80;
   --color-wesafe-green-500: #22C55E;
   --color-wesafe-green-600: #16A34A;
   --color-wesafe-green-700: #15803D;
-  --color-wesafe-green-800: #166534;
+  --color-wesafe-green-800: #15803D;
   --color-wesafe-green-900: #14532D;
 
+  /* Deep Navy - primary dark color */
+  --color-wesafe-navy: #062550;
+
   /* WESAFE Element Colors */
-  --color-water: #0EA5E9;
-  --color-earth: #84CC16;
+  --color-water: #5BB8F5;
+  --color-earth: #22C55E;
   --color-space: #6366F1;
   --color-air: #67E8F9;
   --color-fire: #F97316;
-  --color-energy: #FACC15;
+  --color-energy: #FCD34D;
 
   /* Font families */
   --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;

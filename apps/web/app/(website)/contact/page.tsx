@@ -19,49 +19,49 @@ export default function ContactPage() {
     {
       region: "Headquarters",
       city: "Delhi",
-      address: "[Main Office Address]",
-      phone: "+91 [Phone Number]",
-      email: "hello@wesafe.org",
+      address: "Graphix Tower 2, A-13, Sector 62, Noida, UP — 201301",
+      phone: "+91 XXXX-XXXX-XX",
+      email: "hello@wesafefuture.org",
       icon: "🏢",
     },
     {
       region: "South Region",
       city: "Bangalore",
-      address: "[Office Address]",
-      phone: "+91 [Phone Number]",
-      email: "south@wesafe.org",
+      address: "Bangalore Office — Coming Soon",
+      phone: "+91 XXXX-XXXX-XX",
+      email: "south@wesafefuture.org",
       icon: "📍",
     },
     {
       region: "West Region",
       city: "Mumbai",
-      address: "[Office Address]",
-      phone: "+91 [Phone Number]",
-      email: "west@wesafe.org",
+      address: "Mumbai Office — Coming Soon",
+      phone: "+91 XXXX-XXXX-XX",
+      email: "west@wesafefuture.org",
       icon: "📍",
     },
     {
       region: "East Region",
       city: "Kolkata",
-      address: "[Office Address]",
-      phone: "+91 [Phone Number]",
-      email: "east@wesafe.org",
+      address: "Kolkata Office — Coming Soon",
+      phone: "+91 XXXX-XXXX-XX",
+      email: "east@wesafefuture.org",
       icon: "📍",
     },
     {
       region: "Central Region",
       city: "Indore",
-      address: "[Office Address]",
-      phone: "+91 [Phone Number]",
-      email: "central@wesafe.org",
+      address: "Indore Office — Coming Soon",
+      phone: "+91 XXXX-XXXX-XX",
+      email: "central@wesafefuture.org",
       icon: "📍",
     },
     {
       region: "Northeast Region",
       city: "Guwahati",
-      address: "[Office Address]",
-      phone: "+91 [Phone Number]",
-      email: "northeast@wesafe.org",
+      address: "Guwahati Office — Coming Soon",
+      phone: "+91 XXXX-XXXX-XX",
+      email: "northeast@wesafefuture.org",
       icon: "📍",
     },
   ];
@@ -78,32 +78,32 @@ export default function ContactPage() {
   const contactReasons = [
     {
       title: "General Inquiry",
-      email: "hello@wesafe.org",
+      email: "hello@wesafefuture.org",
       description: "Questions about weSafe and our programs",
     },
     {
       title: "Event Registration",
-      email: "events@wesafe.org",
+      email: "events@wesafefuture.org",
       description: "Register for hackathons and workshops",
     },
     {
       title: "Sponsorship & CSR",
-      email: "sponsors@wesafe.org",
+      email: "sponsors@wesafefuture.org",
       description: "Corporate partnerships and CSR initiatives",
     },
     {
       title: "Volunteering",
-      email: "volunteers@wesafe.org",
+      email: "volunteers@wesafefuture.org",
       description: "Join our mentor and volunteer network",
     },
     {
       title: "Career Opportunities",
-      email: "careers@wesafe.org",
+      email: "careers@wesafefuture.org",
       description: "Job openings at weSafe Foundation",
     },
     {
       title: "Technical Support",
-      email: "support@wesafe.org",
+      email: "support@wesafefuture.org",
       description: "Website and platform issues",
     },
   ];
@@ -341,16 +341,16 @@ export default function ContactPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {socialLinks.map((link, i) => (
-              <a
+              <div
                 key={i}
-                href={link.url}
-                className="flex flex-col items-center gap-3 p-6 bg-white rounded-xl hover:shadow-lg transition-shadow border border-gray-200 hover:border-blue-300"
+                className="flex flex-col items-center gap-3 p-6 bg-white rounded-xl border border-gray-200 cursor-not-allowed opacity-75"
               >
                 <span className="text-4xl">{link.icon}</span>
                 <span className="font-semibold text-gray-900 text-sm text-center">
                   {link.name}
                 </span>
-              </a>
+                <span className="text-xs text-gray-500">Coming Soon</span>
+              </div>
             ))}
           </div>
 
@@ -455,12 +455,12 @@ export default function ContactPage() {
             <div>
               <p className="text-4xl mb-3">📧</p>
               <h3 className="text-lg font-bold mb-2">Email Us</h3>
-              <p className="text-blue-100">hello@wesafe.org</p>
+              <p className="text-blue-100">hello@wesafefuture.org</p>
             </div>
             <div>
               <p className="text-4xl mb-3">📞</p>
               <h3 className="text-lg font-bold mb-2">Call Us</h3>
-              <p className="text-blue-100">+91 [Phone Number]</p>
+              <p className="text-blue-100">+91 XXXX-XXXX-XX</p>
             </div>
             <div>
               <p className="text-4xl mb-3">🕐</p>

@@ -30,6 +30,9 @@ export default function AboutPage() {
               Empowering the next generation through technology, innovation, and
               community-driven initiatives
             </p>
+            <p className="text-base sm:text-lg text-green-200 max-w-2xl mx-auto mt-4 italic">
+              Care Today, Sustain Tomorrow
+            </p>
           </div>
         </div>
       </section>
@@ -212,28 +215,9 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl p-8 text-center shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="w-24 h-24 bg-blue-200 rounded-full mx-auto mb-6 flex items-center justify-center">
-                  <span className="text-3xl">👤</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                  Team Member {i}
-                </h3>
-                <p className="text-gray-600 mb-4">Position / Role</p>
-                <p className="text-gray-500 text-sm">Bio and expertise</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 p-8 bg-blue-50 rounded-2xl text-center">
-            <p className="text-gray-600">
-              Team profiles coming soon. Get to know the people driving weSafe's
-              mission forward.
+          <div className="p-8 bg-blue-50 rounded-2xl text-center">
+            <p className="text-gray-700 text-lg leading-relaxed">
+              Our growing team of passionate individuals is working to make a difference. Team profiles will be updated soon.
             </p>
           </div>
         </div>
@@ -270,7 +254,7 @@ export default function AboutPage() {
                     Corporate Identification Number (CIN)
                   </p>
                   <p className="text-gray-900 font-semibold">
-                    [CIN Number Here]
+                    U88900UW2026NPL251138
                   </p>
                 </div>
                 <div className="border-b pb-3">
@@ -278,13 +262,13 @@ export default function AboutPage() {
                     Registration Number
                   </p>
                   <p className="text-gray-900 font-semibold">
-                    [Registration Number]
+                    251138
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Registered Office</p>
                   <p className="text-gray-900 font-semibold">
-                    [Address to be filled]
+                    Graphix Tower 2, A-13, Sector 62, Noida, UP — 201301
                   </p>
                 </div>
               </div>
@@ -316,7 +300,7 @@ export default function AboutPage() {
                     Exemption Certificate No.
                   </p>
                   <p className="text-gray-900 font-semibold">
-                    [Certificate No.]
+                    Applied For
                   </p>
                 </div>
                 <div>
