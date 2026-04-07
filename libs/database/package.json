@@ -11,7 +11,7 @@
     "migrate:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
     "studio": "prisma studio",
-    "build": "echo 'No build required'",
+    "build": "prisma generate",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
