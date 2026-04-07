@@ -380,7 +380,7 @@ export default function DonatePage() {
                 </div>
                 <div className="bg-white rounded-lg p-4 border-l-4 border-green-600">
                   <p className="text-sm text-gray-600 mb-1">
-                    <strong>For Super Rich (>50L GTI):</strong>
+                    <strong>For Super Rich (&gt;50L GTI):</strong>
                   </p>
                   <p className="text-gray-900 font-semibold">
                     Up to 100% of GTI
