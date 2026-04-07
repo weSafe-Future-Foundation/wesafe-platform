@@ -21,7 +21,7 @@ export default function ContactPage() {
       city: "Delhi",
       address: "Graphix Tower 2, A-13, Sector 62, Noida, UP — 201301",
       phone: "+91 XXXX-XXXX-XX",
-      email: "hello@wesafefuture.org",
+      email: "info@wesafefuture.org",
       icon: "🏢",
     },
     {
@@ -67,18 +67,14 @@ export default function ContactPage() {
   ];
 
   const socialLinks = [
-    { name: "Instagram", url: "#", icon: "📸" },
-    { name: "Facebook", url: "#", icon: "👍" },
-    { name: "LinkedIn", url: "#", icon: "💼" },
-    { name: "Twitter", url: "#", icon: "🐦" },
-    { name: "YouTube", url: "#", icon: "🎥" },
-    { name: "Discord", url: "#", icon: "💬" },
+    { name: "LinkedIn", url: "https://www.linkedin.com/company/wesafe-future-foundation", icon: "💼" },
+    { name: "Facebook", url: "https://www.facebook.com/people/WeSafe-Future/61574247237807/", icon: "👍" },
   ];
 
   const contactReasons = [
     {
       title: "General Inquiry",
-      email: "hello@wesafefuture.org",
+      email: "info@wesafefuture.org",
       description: "Questions about weSafe and our programs",
     },
     {
@@ -339,28 +335,21 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {socialLinks.map((link, i) => (
-              <div
+              <a
                 key={i}
-                className="flex flex-col items-center gap-3 p-6 bg-white rounded-xl border border-gray-200 cursor-not-allowed opacity-75"
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-3 p-6 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all min-w-[140px]"
               >
                 <span className="text-4xl">{link.icon}</span>
                 <span className="font-semibold text-gray-900 text-sm text-center">
                   {link.name}
                 </span>
-                <span className="text-xs text-gray-500">Coming Soon</span>
-              </div>
+              </a>
             ))}
-          </div>
-
-          <div className="mt-12 p-8 bg-blue-50 rounded-2xl text-center">
-            <p className="text-gray-700 mb-4">
-              Join our Discord community for real-time discussions and support
-            </p>
-            <button className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-              Join Discord Server
-            </button>
           </div>
         </div>
       </section>
@@ -455,7 +444,7 @@ export default function ContactPage() {
             <div>
               <p className="text-4xl mb-3">📧</p>
               <h3 className="text-lg font-bold mb-2">Email Us</h3>
-              <p className="text-blue-100">hello@wesafefuture.org</p>
+              <p className="text-blue-100">info@wesafefuture.org</p>
             </div>
             <div>
               <p className="text-4xl mb-3">📞</p>

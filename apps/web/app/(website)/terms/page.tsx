@@ -166,7 +166,7 @@ export default function TermsPage() {
                 <p className="font-semibold">weSafe Future Foundation</p>
                 <p>Graphix Tower 2, A-13, Sector 62</p>
                 <p>Noida, UP — 201301</p>
-                <p className="mt-2">Email: hello@wesafefuture.org</p>
+                <p className="mt-2">Email: info@wesafefuture.org</p>
               </div>
             </div>
           </div>
