@@ -55,23 +55,30 @@ function formatDate(dateString: string): string {
 // Simple portable text renderer for Sanity block content
 function RichTextBlock({ block }: { block: Record<string, unknown> }) {
   if (block._type === "image") {
-    return (
-      <figure className="my-8">
-        <div className="relative w-full h-[400px] rounded-xl overflow-hidden">
-          <Image
-            src={urlFor(block).width(1200).height(600).url()}
-            alt={(block.alt as string) || "Blog image"}
-            fill
-            className="object-cover"
-          />
-        </div>
-        {typeof block.caption === "string" && block.caption && (
-          <figcaption className="text-center text-sm text-gray-500 mt-3">
-            {block.caption}
-          </figcaption>
-        )}
-      </figure>
-    );
+    // Skip images without a proper asset reference
+    if (!block.asset) return null;
+    try {
+      const imageUrl = urlFor(block).width(1200).height(600).url();
+      return (
+        <figure className="my-8">
+          <div className="relative w-full h-[400px] rounded-xl overflow-hidden">
+            <Image
+              src={imageUrl}
+              alt={(block.alt as string) || "Blog image"}
+              fill
+              className="object-cover"
+            />
+          </div>
+          {typeof block.caption === "string" && block.caption && (
+            <figcaption className="text-center text-sm text-gray-500 mt-3">
+              {block.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    } catch {
+      return null;
+    }
   }
 
   if (block._type === "code") {
@@ -182,7 +189,7 @@ export default async function BlogPostPage({ params }: Props) {
           <p className="text-lg text-blue-100 mb-8">{post.excerpt}</p>
 
           <div className="flex items-center gap-4">
-            {post.author?.image && (
+            {post.author?.image?.asset && (
               <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30">
                 <Image
                   src={urlFor(post.author.image).width(96).height(96).url()}
@@ -204,7 +211,7 @@ export default async function BlogPostPage({ params }: Props) {
       </section>
 
       {/* Main Image */}
-      {post.mainImage && (
+      {post.mainImage?.asset && (
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
           <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-xl">
             <Image
@@ -238,7 +245,7 @@ export default async function BlogPostPage({ params }: Props) {
         {post.author?.bio && (
           <div className="mt-12 pt-8 border-t border-gray-200">
             <div className="flex items-start gap-4">
-              {post.author.image && (
+              {post.author.image?.asset && (
                 <div className="relative w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
                   <Image
                     src={urlFor(post.author.image).width(128).height(128).url()}
