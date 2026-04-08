@@ -163,7 +163,7 @@ function PostCard({
   post: SanityPost | (typeof fallbackPosts)[0];
   useSanityImage: boolean;
 }) {
-  const isSanity = useSanityImage && "mainImage" in post && post.mainImage;
+  const isSanity = useSanityImage && "mainImage" in post && post.mainImage && (post as SanityPost).mainImage?.asset;
   const slug = post.slug.current;
 
   return (
@@ -179,8 +179,12 @@ function PostCard({
             />
           </div>
         ) : (
-          <div className="h-48 bg-gradient-to-br from-blue-100 to-green-100 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform">
-            {"image" in post ? (post as (typeof fallbackPosts)[0]).image : "📝"}
+          <div className="h-48 bg-gradient-to-br from-blue-100 to-green-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+            {"image" in post && (post as (typeof fallbackPosts)[0]).image ? (
+              <span className="text-6xl">{(post as (typeof fallbackPosts)[0]).image}</span>
+            ) : (
+              <span className="text-4xl font-bold text-blue-300/60">{post.category}</span>
+            )}
           </div>
         )}
 
