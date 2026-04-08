@@ -84,12 +84,15 @@ export const blogPostsByCategoryQuery = `*[_type == "post" && category->slug.cur
 // Types
 // ===========================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SanityImage = any;
+
 export interface SanityPost {
   _id: string;
   title: string;
   slug: { current: string };
   excerpt: string;
-  body?: unknown[];
+  body?: Record<string, unknown>[];
   publishedAt: string;
   readTime?: string;
   category: string;
@@ -98,9 +101,9 @@ export interface SanityPost {
     name: string;
     role?: string;
     bio?: string;
-    image?: unknown;
+    image?: SanityImage;
   };
-  mainImage?: unknown;
+  mainImage?: SanityImage;
   relatedPosts?: SanityPost[];
 }
 

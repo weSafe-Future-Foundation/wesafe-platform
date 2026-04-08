@@ -222,7 +222,7 @@ export default async function BlogPostPage({ params }: Props) {
       <article className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {post.body ? (
           <div className="prose-custom">
-            {(post.body as Record<string, unknown>[]).map(
+            {post.body.map(
               (block: Record<string, unknown>, i: number) => (
                 <RichTextBlock key={i} block={block} />
               )
