@@ -25,8 +25,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user already exists
-    const identifier = authMethod === "phone" ? phone : email;
+    // For phone signup, use +91 prefix to match stored format
     const field = authMethod === "phone" ? "phone" : "email";
+    const identifier = authMethod === "phone" ? `+91${phone}` : email;
 
     const checkRes = await fetch(
       `${SUPABASE_URL}/rest/v1/users?${field}=eq.${encodeURIComponent(identifier)}&select=id`,
@@ -49,6 +50,31 @@ export async function POST(req: NextRequest) {
     // TODO: Replace with bcrypt
     const passwordHash = authMethod === "email" ? password : null;
 
+    // Build user payload — only include fields that have values
+    // This avoids NOT NULL constraint violations for optional fields
+    const userPayload: Record<string, unknown> = {
+      name,
+      role,
+      authProvider: authMethod === "phone" ? "PHONE" : "EMAIL",
+      isVerified: false,
+      isActive: true,
+    };
+
+    // Only include email if provided (column may have NOT NULL constraint)
+    if (email) {
+      userPayload.email = email;
+    }
+
+    // Phone always stored with +91 prefix
+    if (phone) {
+      userPayload.phone = `+91${phone}`;
+    }
+
+    // Password hash only for email signups
+    if (passwordHash) {
+      userPayload.passwordHash = passwordHash;
+    }
+
     // Create user
     const userRes = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
       method: "POST",
@@ -58,22 +84,19 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
         Prefer: "return=representation",
       },
-      body: JSON.stringify({
-        email: email || null,
-        name,
-        phone: phone ? `+91${phone}` : null,
-        passwordHash,
-        role,
-        authProvider: authMethod === "phone" ? "PHONE" : "EMAIL",
-        isVerified: false,
-        isActive: true,
-      }),
+      body: JSON.stringify(userPayload),
     });
 
     if (!userRes.ok) {
       const err = await userRes.text();
-      console.error("User creation error:", err);
-      return NextResponse.json({ error: "Failed to create account. Please try again." }, { status: 500 });
+      console.error("User creation error:", userRes.status, err);
+      // Return more specific error for debugging
+      const errorMsg = err.includes("unique") || err.includes("duplicate")
+        ? "An account with these details already exists."
+        : err.includes("null value") || err.includes("not-null")
+        ? "Missing required field. Please fill all required fields."
+        : "Failed to create account. Please try again.";
+      return NextResponse.json({ error: errorMsg }, { status: 500 });
     }
 
     const [newUser] = await userRes.json();
