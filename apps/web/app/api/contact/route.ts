@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
             type: mapInquiryType(body.inquiryType),
             subject: body.subject,
             message: body.message,
-            is_read: false,
+            isRead: false,
           }),
         });
 
