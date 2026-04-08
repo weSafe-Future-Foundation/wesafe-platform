@@ -52,33 +52,42 @@ function formatDate(dateString: string): string {
   });
 }
 
+// Safe image URL builder - returns null if image can't be resolved
+function safeImageUrl(source: unknown, width: number, height: number): string | null {
+  try {
+    const src = source as Record<string, unknown>;
+    if (!src?.asset && !src?._ref) return null;
+    const asset = src.asset as Record<string, unknown> | undefined;
+    if (asset && !asset._ref) return null;
+    return urlFor(source).width(width).height(height).url();
+  } catch {
+    return null;
+  }
+}
+
 // Simple portable text renderer for Sanity block content
 function RichTextBlock({ block }: { block: Record<string, unknown> }) {
   if (block._type === "image") {
     // Skip images without a proper asset reference
-    if (!block.asset) return null;
-    try {
-      const imageUrl = urlFor(block).width(1200).height(600).url();
-      return (
-        <figure className="my-8">
-          <div className="relative w-full h-[400px] rounded-xl overflow-hidden">
-            <Image
-              src={imageUrl}
-              alt={(block.alt as string) || "Blog image"}
-              fill
-              className="object-cover"
-            />
-          </div>
-          {typeof block.caption === "string" && block.caption && (
-            <figcaption className="text-center text-sm text-gray-500 mt-3">
-              {block.caption}
-            </figcaption>
-          )}
-        </figure>
-      );
-    } catch {
-      return null;
-    }
+    const imageUrl = safeImageUrl(block, 1200, 600);
+    if (!imageUrl) return null;
+    return (
+      <figure className="my-8">
+        <div className="relative w-full h-[400px] rounded-xl overflow-hidden">
+          <Image
+            src={imageUrl}
+            alt={(block.alt as string) || "Blog image"}
+            fill
+            className="object-cover"
+          />
+        </div>
+        {typeof block.caption === "string" && block.caption && (
+          <figcaption className="text-center text-sm text-gray-500 mt-3">
+            {block.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
   }
 
   if (block._type === "code") {
@@ -189,16 +198,19 @@ export default async function BlogPostPage({ params }: Props) {
           <p className="text-lg text-blue-100 mb-8">{post.excerpt}</p>
 
           <div className="flex items-center gap-4">
-            {post.author?.image?.asset && (
-              <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30">
-                <Image
-                  src={urlFor(post.author.image).width(96).height(96).url()}
-                  alt={post.author.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
+            {(() => {
+              const avatarUrl = post.author?.image ? safeImageUrl(post.author.image, 96, 96) : null;
+              return avatarUrl ? (
+                <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30">
+                  <Image
+                    src={avatarUrl}
+                    alt={post.author!.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : null;
+            })()}
             <div>
               <p className="font-semibold">{post.author?.name}</p>
               <p className="text-blue-200 text-sm">
@@ -211,19 +223,22 @@ export default async function BlogPostPage({ params }: Props) {
       </section>
 
       {/* Main Image */}
-      {post.mainImage?.asset && (
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-          <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-xl">
-            <Image
-              src={urlFor(post.mainImage).width(1200).height(600).url()}
-              alt={post.title}
-              fill
-              className="object-cover"
-              priority
-            />
+      {(() => {
+        const mainImgUrl = post.mainImage ? safeImageUrl(post.mainImage, 1200, 600) : null;
+        return mainImgUrl ? (
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+            <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-xl">
+              <Image
+                src={mainImgUrl}
+                alt={post.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
           </div>
-        </div>
-      )}
+        ) : null;
+      })()}
 
       {/* Article Body */}
       <article className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
@@ -245,16 +260,19 @@ export default async function BlogPostPage({ params }: Props) {
         {post.author?.bio && (
           <div className="mt-12 pt-8 border-t border-gray-200">
             <div className="flex items-start gap-4">
-              {post.author.image?.asset && (
-                <div className="relative w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
-                  <Image
-                    src={urlFor(post.author.image).width(128).height(128).url()}
-                    alt={post.author.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
+              {(() => {
+                const bioImgUrl = post.author.image ? safeImageUrl(post.author.image, 128, 128) : null;
+                return bioImgUrl ? (
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+                    <Image
+                      src={bioImgUrl}
+                      alt={post.author.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : null;
+              })()}
               <div>
                 <p className="font-bold text-gray-900">{post.author.name}</p>
                 {post.author.role && (
@@ -284,19 +302,19 @@ export default async function BlogPostPage({ params }: Props) {
                   className="group"
                 >
                   <article className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-200">
-                    {related.mainImage && (
-                      <div className="relative h-40 overflow-hidden">
-                        <Image
-                          src={urlFor(related.mainImage)
-                            .width(400)
-                            .height(250)
-                            .url()}
-                          alt={related.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    )}
+                    {(() => {
+                      const relImgUrl = related.mainImage ? safeImageUrl(related.mainImage, 400, 250) : null;
+                      return relImgUrl ? (
+                        <div className="relative h-40 overflow-hidden">
+                          <Image
+                            src={relImgUrl}
+                            alt={related.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : null;
+                    })()}
                     <div className="p-5">
                       <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
                         {related.category}
