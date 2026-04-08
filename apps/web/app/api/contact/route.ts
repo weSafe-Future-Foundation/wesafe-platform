@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Pool } from "pg";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const CONTACT_TO_EMAIL = "info@wesafefuture.org";
 const FROM_EMAIL = "weSafe Contact Form <noreply@wesafefuture.org>";
 
-// Direct PostgreSQL connection — no Prisma engine binary needed
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-  max: 1,
-});
+// Supabase REST API config — no drivers, no binaries, just HTTP
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 interface ContactFormData {
   name: string;
@@ -55,24 +51,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Save to database using direct PostgreSQL (no Prisma engine needed)
-    try {
-      await pool.query(
-        `INSERT INTO contact_forms (id, name, email, phone, type, subject, message, is_read, created_at)
-         VALUES (gen_random_uuid()::text, $1, $2, $3, $4::"ContactType", $5, $6, false, NOW())`,
-        [
-          body.name,
-          body.email,
-          body.phone || null,
-          mapInquiryType(body.inquiryType),
-          body.subject,
-          body.message,
-        ]
-      );
-      console.log("Contact form saved to database successfully");
-    } catch (dbError) {
-      // Log but don't fail — email should still send
-      console.error("Failed to save contact form to database:", dbError);
+    // Save to database via Supabase REST API (no drivers/binaries needed)
+    if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
+      try {
+        const dbRes = await fetch(`${SUPABASE_URL}/rest/v1/contact_forms`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_SERVICE_KEY,
+            Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify({
+            name: body.name,
+            email: body.email,
+            phone: body.phone || null,
+            type: mapInquiryType(body.inquiryType),
+            subject: body.subject,
+            message: body.message,
+            is_read: false,
+          }),
+        });
+
+        if (!dbRes.ok) {
+          const dbError = await dbRes.text();
+          console.error("Supabase insert error:", dbRes.status, dbError);
+        } else {
+          console.log("Contact form saved to database successfully");
+        }
+      } catch (dbError) {
+        console.error("Failed to save contact form to database:", dbError);
+      }
+    } else {
+      console.error("Supabase env vars missing — NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
     }
 
     // Send notification email to weSafe team
