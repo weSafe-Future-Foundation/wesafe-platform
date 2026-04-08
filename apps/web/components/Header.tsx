@@ -52,7 +52,7 @@ export function Header() {
               Donate
             </Link>
             <Link
-              href="/join"
+              href="/community/register"
               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
               Join Us
@@ -110,7 +110,7 @@ export function Header() {
                 Donate
               </Link>
               <Link
-                href="/join"
+                href="/community/register"
                 className="flex-1 text-center py-2 text-sm font-medium text-white bg-blue-600 rounded-lg"
               >
                 Join Us

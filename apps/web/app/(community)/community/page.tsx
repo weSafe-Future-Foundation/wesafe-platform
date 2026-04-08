@@ -194,7 +194,7 @@ export default function CommunityPage() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
             </span>
             <span className="text-sm font-medium text-green-300">
-              Open for Class 5+ Students Across India
+              Now Open for Students Across India
             </span>
           </div>
 
