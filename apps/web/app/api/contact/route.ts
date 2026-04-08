@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, ContactType } from "@wesafe/database";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const CONTACT_TO_EMAIL = "info@wesafefuture.org";
@@ -14,18 +13,18 @@ interface ContactFormData {
   message: string;
 }
 
-// Map form inquiry types to database ContactType enum
-function mapInquiryType(inquiryType: string): ContactType {
-  const mapping: Record<string, ContactType> = {
-    "General Question": ContactType.GENERAL,
-    "Event Registration": ContactType.GENERAL,
-    "Sponsorship": ContactType.SPONSORSHIP,
-    "Volunteering": ContactType.VOLUNTEER,
-    "Career Opportunity": ContactType.GENERAL,
-    "Technical Support": ContactType.GENERAL,
-    "Other": ContactType.GENERAL,
+// Map form inquiry types to database ContactType enum values
+function mapInquiryType(inquiryType: string): string {
+  const mapping: Record<string, string> = {
+    "General Question": "GENERAL",
+    "Event Registration": "GENERAL",
+    "Sponsorship": "SPONSORSHIP",
+    "Volunteering": "VOLUNTEER",
+    "Career Opportunity": "GENERAL",
+    "Technical Support": "GENERAL",
+    "Other": "GENERAL",
   };
-  return mapping[inquiryType] || ContactType.GENERAL;
+  return mapping[inquiryType] || "GENERAL";
 }
 
 export async function POST(req: NextRequest) {
@@ -48,18 +47,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Save to database
+    // Save to database (dynamic import so Prisma engine issues don't break email)
     try {
+      const { prisma } = await import("@wesafe/database");
       await prisma.contactForm.create({
         data: {
           name: body.name,
           email: body.email,
           phone: body.phone || null,
-          type: mapInquiryType(body.inquiryType),
+          type: mapInquiryType(body.inquiryType) as never,
           subject: body.subject,
           message: body.message,
         },
       });
+      console.log("Contact form saved to database successfully");
     } catch (dbError) {
       // Log but don't fail — email should still send
       console.error("Failed to save contact form to database:", dbError);
