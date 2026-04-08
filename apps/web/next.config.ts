@@ -28,14 +28,23 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "lh3.googleusercontent.com", // Google OAuth avatars
+        hostname: "lh3.googleusercontent.com",
       },
     ],
+  },
+  outputFileTracingIncludes: {
+    "/api/**": ["./node_modules/.prisma/**/*", "../../node_modules/.prisma/**/*"],
   },
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",
     },
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...(config.externals || []), "@prisma/client"];
+    }
+    return config;
   },
 };
 
