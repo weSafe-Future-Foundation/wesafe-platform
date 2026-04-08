@@ -120,6 +120,7 @@ export default function RegisterPage() {
     }
 
     try {
+      // Step 1: Create the account
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -135,6 +136,25 @@ export default function RegisterPage() {
         setStatus("error");
         return;
       }
+
+      // Step 2: Send OTP to phone or email
+      if (authMethod === "phone" || authMethod === "email") {
+        const otpRes = await fetch("/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: authMethod === "phone" ? formData.phone : undefined,
+            email: authMethod === "email" ? formData.email : undefined,
+            purpose: "register",
+          }),
+        });
+        const otpData = await otpRes.json();
+        if (!otpRes.ok) {
+          // Account created but OTP failed — still show verify step
+          console.warn("OTP send failed:", otpData.error);
+        }
+      }
+
       setStep("verify");
       setStatus("idle");
     } catch {
@@ -641,7 +661,32 @@ export default function RegisterPage() {
               {status === "loading" ? "Verifying..." : "Verify & Continue"}
             </button>
 
-            <button className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <button
+              onClick={async () => {
+                setErrorMsg("");
+                try {
+                  const otpRes = await fetch("/api/auth/send-otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      phone: authMethod === "phone" ? formData.phone : undefined,
+                      email: authMethod === "email" ? formData.email : undefined,
+                      purpose: "register",
+                    }),
+                  });
+                  if (otpRes.ok) {
+                    setErrorMsg("");
+                    alert("OTP resent successfully!");
+                  } else {
+                    const d = await otpRes.json();
+                    setErrorMsg(d.error || "Failed to resend OTP.");
+                  }
+                } catch {
+                  setErrorMsg("Failed to resend OTP.");
+                }
+              }}
+              className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
               Didn&apos;t receive the code? Resend
             </button>
           </div>
