@@ -65,9 +65,9 @@ function RichTextBlock({ block }: { block: Record<string, unknown> }) {
             className="object-cover"
           />
         </div>
-        {block.caption && (
+        {typeof block.caption === "string" && block.caption && (
           <figcaption className="text-center text-sm text-gray-500 mt-3">
-            {block.caption as string}
+            {block.caption}
           </figcaption>
         )}
       </figure>
