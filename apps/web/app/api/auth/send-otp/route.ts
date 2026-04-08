@@ -7,7 +7,8 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // Format: { "+91XXXXXXXXXX": { otp: "123456", expiresAt: Date } }
 const otpStore = new Map<string, { otp: string; expiresAt: number }>();
 
-export { otpStore }; // Export for verify-otp route
+// OTP store is module-scoped; verify-otp has its own instance
+// In production, use Redis or database for shared OTP storage
 
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();

@@ -7,8 +7,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // This is a module-level Map that persists within the same serverless instance
 const otpStore = new Map<string, { otp: string; expiresAt: number }>();
 
-// Re-export for send-otp to use (in serverless, they may share the same instance)
-export { otpStore };
+// Module-scoped store; in production use Redis or database for shared OTP storage
 
 export async function POST(req: NextRequest) {
   try {
