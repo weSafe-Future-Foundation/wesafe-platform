@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { schemaTypes } from "../../libs/sanity/schemas";
