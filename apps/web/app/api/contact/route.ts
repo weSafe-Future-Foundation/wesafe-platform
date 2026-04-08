@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Pool } from "pg";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const CONTACT_TO_EMAIL = "info@wesafefuture.org";
 const FROM_EMAIL = "weSafe Contact Form <noreply@wesafefuture.org>";
+
+// Direct PostgreSQL connection — no Prisma engine binary needed
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 1,
+});
 
 interface ContactFormData {
   name: string;
@@ -47,19 +55,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Save to database (dynamic import so Prisma engine issues don't break email)
+    // Save to database using direct PostgreSQL (no Prisma engine needed)
     try {
-      const { prisma } = await import("@wesafe/database");
-      await prisma.contactForm.create({
-        data: {
-          name: body.name,
-          email: body.email,
-          phone: body.phone || null,
-          type: mapInquiryType(body.inquiryType) as never,
-          subject: body.subject,
-          message: body.message,
-        },
-      });
+      await pool.query(
+        `INSERT INTO contact_forms (id, name, email, phone, type, subject, message, is_read, created_at)
+         VALUES (gen_random_uuid()::text, $1, $2, $3, $4::"ContactType", $5, $6, false, NOW())`,
+        [
+          body.name,
+          body.email,
+          body.phone || null,
+          mapInquiryType(body.inquiryType),
+          body.subject,
+          body.message,
+        ]
+      );
       console.log("Contact form saved to database successfully");
     } catch (dbError) {
       // Log but don't fail — email should still send

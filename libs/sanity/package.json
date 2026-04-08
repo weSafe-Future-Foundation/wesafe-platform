@@ -9,8 +9,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "next-sanity": "^9.8.0",
-    "@sanity/image-url": "^1.1.0"
+    "@sanity/client": "^7.20.0",
+    "@sanity/image-url": "^1.1.0",
+    "next-sanity": "^9.8.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0"
