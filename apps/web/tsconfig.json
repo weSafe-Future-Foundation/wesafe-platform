@@ -21,7 +21,8 @@
       "@wesafe/api-client": ["../../packages/api-client/src"],
       "@wesafe/auth": ["../../packages/auth/src"],
       "@wesafe/database": ["../../libs/database/src"],
-      "@wesafe/marketing": ["../../packages/marketing/src"]
+      "@wesafe/marketing": ["../../packages/marketing/src"],
+      "@wesafe/sanity": ["../../libs/sanity/src"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

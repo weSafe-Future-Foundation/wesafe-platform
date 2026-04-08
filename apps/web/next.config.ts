@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     "@wesafe/auth",
     "@wesafe/database",
     "@wesafe/marketing",
+    "@wesafe/sanity",
   ],
   images: {
     remotePatterns: [

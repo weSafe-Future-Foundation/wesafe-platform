@@ -18,9 +18,12 @@
     "@wesafe/api-client": "workspace:*",
     "@wesafe/auth": "workspace:*",
     "@wesafe/database": "workspace:*",
+    "@wesafe/sanity": "workspace:*",
     "next-auth": "^4.24.0",
+    "sanity": "^3.72.0",
     "next-sanity": "^9.8.0",
     "@sanity/image-url": "^1.1.0",
+    "@portabletext/react": "^3.2.0",
     "clsx": "^2.1.0",
     "tailwind-merge": "^2.6.0"
   },
