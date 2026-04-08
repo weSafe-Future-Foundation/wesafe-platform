@@ -101,8 +101,33 @@ export default {
           ],
         },
         {
-          type: "code",
+          type: "object",
+          name: "code",
           title: "Code Block",
+          fields: [
+            {
+              name: "language",
+              title: "Language",
+              type: "string",
+              options: {
+                list: [
+                  { title: "JavaScript", value: "javascript" },
+                  { title: "TypeScript", value: "typescript" },
+                  { title: "Python", value: "python" },
+                  { title: "HTML", value: "html" },
+                  { title: "CSS", value: "css" },
+                  { title: "Bash", value: "bash" },
+                  { title: "JSON", value: "json" },
+                  { title: "Other", value: "other" },
+                ],
+              },
+            },
+            {
+              name: "code",
+              title: "Code",
+              type: "text",
+            },
+          ],
         },
       ],
     },
