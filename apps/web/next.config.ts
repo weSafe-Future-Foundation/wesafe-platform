@@ -33,18 +33,19 @@ const nextConfig: NextConfig = {
     ],
   },
   outputFileTracingIncludes: {
-    "/api/**": ["./node_modules/.prisma/**/*", "../../node_modules/.prisma/**/*"],
+    "/api/**": [
+      "./node_modules/.prisma/**/*",
+      "../../node_modules/.prisma/**/*",
+      "../../node_modules/@prisma/client/**/*",
+      "../../libs/database/node_modules/.prisma/**/*",
+      "../../libs/database/node_modules/@prisma/client/**/*",
+    ],
   },
+  serverExternalPackages: ["@prisma/client", "prisma"],
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",
     },
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals = [...(config.externals || []), "@prisma/client"];
-    }
-    return config;
   },
 };
 
