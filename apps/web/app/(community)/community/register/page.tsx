@@ -65,6 +65,7 @@ export default function RegisterPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [debugInfo, setDebugInfo] = useState(""); // TEMPORARY debug
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
@@ -149,8 +150,9 @@ export default function RegisterPage() {
           }),
         });
         const otpData = await otpRes.json();
+        // TEMPORARY: Show debug info on screen
+        setDebugInfo(JSON.stringify(otpData, null, 2));
         if (!otpRes.ok) {
-          // Account created but OTP failed — still show verify step
           console.warn("OTP send failed:", otpData.error);
         }
       }
@@ -626,6 +628,13 @@ export default function RegisterPage() {
                   : formData.email}
               </strong>
             </p>
+
+            {/* TEMPORARY: Debug info — remove after SMS is working */}
+            {debugInfo && (
+              <pre className="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded-xl text-xs text-left overflow-auto max-h-40">
+                {debugInfo}
+              </pre>
+            )}
 
             {/* OTP Inputs */}
             <div className="flex justify-center gap-3 mt-8">

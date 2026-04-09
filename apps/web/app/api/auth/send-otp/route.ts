@@ -8,34 +8,46 @@ function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function sendSMSviaFast2SMS(phone: string, otp: string): Promise<boolean> {
+// Returns { success: boolean, debug: string } for diagnostics
+async function sendSMSviaFast2SMS(phone: string, otp: string): Promise<{ success: boolean; debug: string }> {
   if (!FAST2SMS_API_KEY) {
-    console.warn("[OTP] FAST2SMS_API_KEY not set — OTP not sent via SMS");
-    return false;
+    return { success: false, debug: "FAST2SMS_API_KEY not set" };
   }
 
   try {
+    const payload = {
+      route: "otp",
+      variables_values: otp,
+      flash: 0,
+      numbers: phone,
+    };
+
     const res = await fetch("https://www.fast2sms.com/dev/bulkV2", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         authorization: FAST2SMS_API_KEY,
       },
-      body: JSON.stringify({
-        route: "otp",
-        variables_values: otp,
-        flash: 0,
-        numbers: phone, // 10-digit number without +91
-      }),
+      body: JSON.stringify(payload),
     });
 
-    const data = await res.json();
+    const responseText = await res.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      return { success: false, debug: `Fast2SMS non-JSON response (${res.status}): ${responseText.slice(0, 200)}` };
+    }
+
     console.log("[OTP] Fast2SMS response:", JSON.stringify(data));
 
-    return data.return === true;
+    if (data.return === true) {
+      return { success: true, debug: "SMS sent successfully" };
+    }
+
+    return { success: false, debug: `Fast2SMS error: ${JSON.stringify(data).slice(0, 300)}` };
   } catch (error) {
-    console.error("[OTP] Fast2SMS error:", error);
-    return false;
+    return { success: false, debug: `Fast2SMS fetch error: ${error instanceof Error ? error.message : String(error)}` };
   }
 }
 
@@ -122,18 +134,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Send OTP via Fast2SMS
-    const sent = await sendSMSviaFast2SMS(phone, otp);
+    const smsResult = await sendSMSviaFast2SMS(phone, otp);
 
-    if (sent) {
-      return NextResponse.json({ message: "OTP sent successfully to your phone." });
-    }
-
-    // If Fast2SMS not configured or failed, return OTP in dev mode for testing
-    console.log(`[DEV] OTP for +91${phone}: ${otp}`);
+    // TEMPORARY: Return debug info to diagnose SMS delivery issues
+    // TODO: Remove debug field once SMS is confirmed working
     return NextResponse.json({
-      message: "OTP generated. Check your phone.",
-      // In dev/testing, include OTP in response if SMS provider isn't configured
-      ...((!FAST2SMS_API_KEY || process.env.NODE_ENV !== "production") ? { devOtp: otp } : {}),
+      message: smsResult.success ? "OTP sent successfully to your phone." : "OTP generated.",
+      smsSent: smsResult.success,
+      debug: smsResult.debug,
+      otp, // TEMPORARY: for testing — remove in production
     });
   } catch (error) {
     console.error("Send OTP error:", error);
