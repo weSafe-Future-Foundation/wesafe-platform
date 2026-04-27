@@ -1,33 +1,26 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Dashboard | weSafe Student Community",
-  description:
-    "Your personal dashboard — track points, badges, missions, leaderboard rank, and upcoming events.",
-};
+interface SessionUser {
+  id: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  role: string;
+}
 
-/* ── Mock student data (will be fetched from API after auth) ── */
-const student = {
-  name: "Rahul Sharma",
-  college: "IIT Delhi",
-  degree: "B.Tech CSE",
-  level: "Guardian",
-  levelEmoji: "\u{1F333}",
-  points: 875,
-  nextLevelPoints: 1500,
-  rank: 42,
-  totalStudents: 523,
-  streak: 7,
-  badgeCount: 12,
-  certCount: 3,
-  eventsAttended: 8,
-  joinedDate: "Jan 2026",
-};
-
-const progressPercent = Math.round(
-  (student.points / student.nextLevelPoints) * 100
-);
+function getSession(): SessionUser | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/wesafe-session=([^;]+)/);
+  if (!match) return null;
+  try {
+    return JSON.parse(atob(match[1].replace(/-/g, "+").replace(/_/g, "/")));
+  } catch {
+    return null;
+  }
+}
 
 /* ── Daily Missions ── */
 const dailyMissions = [
@@ -147,6 +140,34 @@ const leaderboardTop = [
 ];
 
 export default function DashboardPage() {
+  const [user, setUser] = useState<SessionUser | null>(null);
+
+  useEffect(() => {
+    const s = getSession();
+    if (!s) {
+      window.location.href = "/community/login";
+      return;
+    }
+    setUser(s);
+  }, []);
+
+  const handleLogout = async () => {
+    document.cookie = "wesafe-session=; path=/; max-age=0";
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    window.location.href = "/community/login";
+  };
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  const firstName = user.name?.split(" ")[0] || "User";
+  const roleLabel = user.role === "STUDENT" ? "Student" : user.role === "COMPANY" ? "Company" : user.role === "VOLUNTEER" ? "Volunteer" : "Donor";
+
   return (
     <>
       {/* ── Header Bar ── */}
@@ -155,25 +176,27 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-2xl font-bold shadow-lg">
-                {student.name.charAt(0)}
+                {firstName.charAt(0)}
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold">
-                  Welcome back, {student.name.split(" ")[0]}!
+                  Welcome, {firstName}!
                 </h1>
                 <p className="text-blue-300 text-sm">
-                  {student.college} &middot; {student.degree} &middot; Joined{" "}
-                  {student.joinedDate}
+                  {roleLabel} &middot; {user.phone || user.email}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <span className="px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full text-sm font-semibold border border-white/20">
-                {student.levelEmoji} {student.level}
+                {"\u{1F331}"} Newcomer
               </span>
-              <span className="px-3 py-1.5 bg-green-500/20 backdrop-blur-sm rounded-full text-sm font-semibold text-green-300 border border-green-400/30">
-                {student.streak}-Day Streak {"\u{1F525}"}
-              </span>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-1.5 bg-red-500/20 backdrop-blur-sm rounded-full text-sm font-semibold text-red-300 border border-red-400/30 hover:bg-red-500/30 transition-colors"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -212,28 +235,28 @@ export default function DashboardPage() {
           {[
             {
               label: "Total Points",
-              value: student.points.toLocaleString(),
+              value: "0",
               icon: "\u{2B50}",
               color: "text-amber-600",
               bg: "bg-amber-50",
             },
             {
               label: "India Rank",
-              value: `#${student.rank}`,
+              value: "--",
               icon: "\u{1F4CA}",
               color: "text-blue-600",
               bg: "bg-blue-50",
             },
             {
               label: "Badges Earned",
-              value: student.badgeCount.toString(),
+              value: "0",
               icon: "\u{1F3C5}",
               color: "text-purple-600",
               bg: "bg-purple-50",
             },
             {
               label: "Events Attended",
-              value: student.eventsAttended.toString(),
+              value: "0",
               icon: "\u{1F3AA}",
               color: "text-green-600",
               bg: "bg-green-50",
@@ -262,23 +285,21 @@ export default function DashboardPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">{student.levelEmoji}</span>
-              <h3 className="font-bold text-gray-900">{student.level}</h3>
+              <span className="text-2xl">{"\u{1F331}"}</span>
+              <h3 className="font-bold text-gray-900">Newcomer</h3>
             </div>
             <span className="text-sm text-gray-500">
-              {student.points} / {student.nextLevelPoints.toLocaleString()} pts
-              to <strong>Champion</strong>
+              0 / 100 pts to <strong>Explorer</strong>
             </span>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
+              style={{ width: "0%" }}
             />
           </div>
           <p className="text-xs text-gray-400 mt-2">
-            {student.nextLevelPoints - student.points} more points to reach
-            Champion level
+            Complete missions and attend events to earn your first points!
           </p>
         </div>
 
@@ -450,16 +471,16 @@ export default function DashboardPage() {
               <div className="px-5 py-3 bg-blue-50 border-t border-blue-100">
                 <div className="flex items-center gap-3">
                   <span className="w-7 h-7 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center text-xs font-bold">
-                    {student.rank}
+                    --
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-blue-800 text-sm">
-                      You ({student.name})
+                      You ({user.name})
                     </p>
-                    <p className="text-xs text-blue-600">{student.college}</p>
+                    <p className="text-xs text-blue-600">{roleLabel}</p>
                   </div>
                   <span className="text-sm font-bold text-blue-700">
-                    {student.points.toLocaleString()}
+                    0
                   </span>
                 </div>
               </div>
