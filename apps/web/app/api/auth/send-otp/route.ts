@@ -4,22 +4,34 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const FAST2SMS_API_KEY = process.env.FAST2SMS_API_KEY;
 
+// DLT credentials (Jio DLT - WESAFE FUTURE FOUNDATION)
+const DLT_SENDER_ID = "WESFOU";
+const DLT_TEMPLATE_ID = "1207177679595537699";
+const DLT_ENTITY_ID = "1201177569899339810";
+// Template: "Your OTP for weSafe Future Foundation registration is {#VAR#}. Please do not share it with anyone."
+
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Returns { success: boolean, debug: string } for diagnostics
+// Send OTP via Fast2SMS DLT route (cheapest, ~₹0.20/SMS)
 async function sendSMSviaFast2SMS(phone: string, otp: string): Promise<{ success: boolean; debug: string }> {
   if (!FAST2SMS_API_KEY) {
     return { success: false, debug: "FAST2SMS_API_KEY not set" };
   }
 
   try {
+    // DLT route — message must match the approved template exactly
+    const message = `Your OTP for weSafe Future Foundation registration is ${otp}. Please do not share it with anyone.`;
+
     const payload = {
-      route: "otp",
-      variables_values: otp,
+      route: "dlt_manual",
+      sender_id: DLT_SENDER_ID,
+      message,
+      template_id: DLT_TEMPLATE_ID,
+      entity_id: DLT_ENTITY_ID,
       flash: 0,
-      numbers: phone,
+      numbers: phone, // 10-digit number without +91
     };
 
     const res = await fetch("https://www.fast2sms.com/dev/bulkV2", {
@@ -39,15 +51,13 @@ async function sendSMSviaFast2SMS(phone: string, otp: string): Promise<{ success
       return { success: false, debug: `Fast2SMS non-JSON response (${res.status}): ${responseText.slice(0, 200)}` };
     }
 
-    console.log("[OTP] Fast2SMS response:", JSON.stringify(data));
-
     if (data.return === true) {
-      return { success: true, debug: "SMS sent successfully" };
+      return { success: true, debug: "SMS sent successfully via DLT" };
     }
 
-    return { success: false, debug: `Fast2SMS error: ${JSON.stringify(data).slice(0, 300)}` };
+    return { success: false, debug: `Fast2SMS: ${JSON.stringify(data).slice(0, 300)}` };
   } catch (error) {
-    return { success: false, debug: `Fast2SMS fetch error: ${error instanceof Error ? error.message : String(error)}` };
+    return { success: false, debug: `Fast2SMS error: ${error instanceof Error ? error.message : String(error)}` };
   }
 }
 
@@ -55,7 +65,7 @@ async function storeOTPInDB(phone: string, otp: string): Promise<boolean> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return false;
 
   const fullPhone = `+91${phone}`;
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
   // Delete any existing OTP for this phone first
   await fetch(
@@ -127,22 +137,24 @@ export async function POST(req: NextRequest) {
     // Generate OTP
     const otp = generateOTP();
 
-    // Store OTP in database (not in-memory — serverless safe)
+    // Store OTP in database (serverless safe)
     const stored = await storeOTPInDB(phone, otp);
     if (!stored) {
       return NextResponse.json({ error: "Failed to process OTP. Please try again." }, { status: 500 });
     }
 
-    // Send OTP via Fast2SMS
+    // Send OTP via Fast2SMS DLT route
     const smsResult = await sendSMSviaFast2SMS(phone, otp);
 
-    // TEMPORARY: Return debug info to diagnose SMS delivery issues
-    // TODO: Remove debug field once SMS is confirmed working
+    // TEMPORARY: Keep debug info until first successful SMS test
+    // TODO: Remove debug and otp fields once DLT SMS delivery is confirmed
     return NextResponse.json({
-      message: smsResult.success ? "OTP sent successfully to your phone." : "OTP generated.",
+      message: smsResult.success
+        ? "OTP sent to your phone!"
+        : "OTP generated. SMS delivery issue.",
       smsSent: smsResult.success,
       debug: smsResult.debug,
-      otp, // TEMPORARY: for testing — remove in production
+      otp, // TEMPORARY: remove after confirming SMS works
     });
   } catch (error) {
     console.error("Send OTP error:", error);
