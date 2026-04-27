@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jsonWithSession } from "@/lib/session";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -58,11 +57,27 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // Set session cookie and return success
-    return jsonWithSession(
-      { message: "Login successful!" },
-      { id: user.id, name: user.name, email: user.email, role: user.role }
-    );
+    // Create session token
+    const sessionToken = Buffer.from(JSON.stringify({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+    })).toString("base64url");
+
+    const response = NextResponse.json({
+      message: "Login successful!",
+      token: sessionToken,
+    });
+    response.cookies.set("wesafe-session", sessionToken, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 });

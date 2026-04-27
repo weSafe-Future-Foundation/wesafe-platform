@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jsonWithSession } from "@/lib/session";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -148,11 +147,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    // Set session cookie and return success
-    return jsonWithSession(
-      { message: "Verification successful!", verified: true },
-      { id: user.id, name: user.name, phone: user.phone, email: user.email, role: user.role }
-    );
+    // Return user data as token for client-side session
+    const sessionToken = Buffer.from(JSON.stringify({
+      id: user.id,
+      name: user.name,
+      phone: user.phone,
+      email: user.email,
+      role: user.role,
+      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+    })).toString("base64url");
+
+    // Set cookie server-side AND return token for client-side backup
+    const response = NextResponse.json({
+      message: "Verification successful!",
+      verified: true,
+      token: sessionToken,
+    });
+    response.cookies.set("wesafe-session", sessionToken, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+    return response;
   } catch (error) {
     console.error("Verify OTP error:", error);
     return NextResponse.json({ error: "Verification failed." }, { status: 500 });

@@ -184,7 +184,10 @@ export default function RegisterPage() {
         setStatus("error");
         return;
       }
-      // Redirect to dashboard
+      // Set session cookie client-side and redirect
+      if (data.token) {
+        document.cookie = `wesafe-session=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax`;
+      }
       window.location.href = "/community/dashboard";
     } catch {
       setErrorMsg("Network error. Please try again.");
