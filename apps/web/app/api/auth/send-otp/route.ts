@@ -146,15 +146,15 @@ export async function POST(req: NextRequest) {
     // Send OTP via Fast2SMS DLT route
     const smsResult = await sendSMSviaFast2SMS(phone, otp);
 
-    // TEMPORARY: Keep debug info until first successful SMS test
-    // TODO: Remove debug and otp fields once DLT SMS delivery is confirmed
+    if (!smsResult.success) {
+      console.error("[OTP] SMS delivery failed:", smsResult.debug);
+    }
+
     return NextResponse.json({
       message: smsResult.success
         ? "OTP sent to your phone!"
-        : "OTP generated. SMS delivery issue.",
+        : "OTP generated but SMS delivery failed. Please try again.",
       smsSent: smsResult.success,
-      debug: smsResult.debug,
-      otp, // TEMPORARY: remove after confirming SMS works
     });
   } catch (error) {
     console.error("Send OTP error:", error);

@@ -65,7 +65,7 @@ export default function RegisterPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const [debugInfo, setDebugInfo] = useState(""); // TEMPORARY debug
+  const [otpSent, setOtpSent] = useState<boolean | null>(null);
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
@@ -133,9 +133,7 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        // TEMPORARY: Show actual DB error for debugging
-        const debugErr = data.debug ? `\n[DB Error: ${data.debug}]` : "";
-        setErrorMsg((data.error || "Registration failed. Please try again.") + debugErr);
+        setErrorMsg(data.error || "Registration failed. Please try again.");
         setStatus("error");
         return;
       }
@@ -151,8 +149,7 @@ export default function RegisterPage() {
           }),
         });
         const otpData = await otpRes.json();
-        // TEMPORARY: Show debug info on screen
-        setDebugInfo(JSON.stringify(otpData, null, 2));
+        setOtpSent(otpData.smsSent === true);
         if (!otpRes.ok) {
           console.warn("OTP send failed:", otpData.error);
         }
@@ -630,11 +627,15 @@ export default function RegisterPage() {
               </strong>
             </p>
 
-            {/* TEMPORARY: Debug info — remove after SMS is working */}
-            {debugInfo && (
-              <pre className="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded-xl text-xs text-left overflow-auto max-h-40">
-                {debugInfo}
-              </pre>
+            {otpSent === true && (
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
+                OTP sent successfully via SMS.
+              </div>
+            )}
+            {otpSent === false && (
+              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700">
+                SMS delivery issue. Please tap &quot;Resend&quot; below or enter the OTP if received.
+              </div>
             )}
 
             {/* OTP Inputs */}
