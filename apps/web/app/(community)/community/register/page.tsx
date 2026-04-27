@@ -133,19 +133,20 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setErrorMsg(data.error || "Registration failed. Please try again.");
+        // TEMPORARY: Show actual DB error for debugging
+        const debugErr = data.debug ? `\n[DB Error: ${data.debug}]` : "";
+        setErrorMsg((data.error || "Registration failed. Please try again.") + debugErr);
         setStatus("error");
         return;
       }
 
-      // Step 2: Send OTP to phone or email
+      // Step 2: Send OTP to phone via SMS
       if (authMethod === "phone" || authMethod === "email") {
         const otpRes = await fetch("/api/auth/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             phone: authMethod === "phone" ? formData.phone : undefined,
-            email: authMethod === "email" ? formData.email : undefined,
             purpose: "register",
           }),
         });
@@ -679,7 +680,6 @@ export default function RegisterPage() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                       phone: authMethod === "phone" ? formData.phone : undefined,
-                      email: authMethod === "email" ? formData.email : undefined,
                       purpose: "register",
                     }),
                   });

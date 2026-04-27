@@ -90,13 +90,18 @@ export async function POST(req: NextRequest) {
     if (!userRes.ok) {
       const err = await userRes.text();
       console.error("User creation error:", userRes.status, err);
-      // Return more specific error for debugging
-      const errorMsg = err.includes("unique") || err.includes("duplicate")
-        ? "An account with these details already exists."
-        : err.includes("null value") || err.includes("not-null")
-        ? "Missing required field. Please fill all required fields."
-        : "Failed to create account. Please try again.";
-      return NextResponse.json({ error: errorMsg }, { status: 500 });
+      // TEMPORARY: Return actual DB error for debugging
+      // TODO: Remove debug info once registration is stable
+      return NextResponse.json({
+        error: err.includes("unique") || err.includes("duplicate")
+          ? "An account with these details already exists."
+          : err.includes("null value") || err.includes("not-null")
+          ? "Missing required field. Please fill all required fields."
+          : "Failed to create account. Please try again.",
+        debug: err,
+        status: userRes.status,
+        payload: userPayload,
+      }, { status: 500 });
     }
 
     const [newUser] = await userRes.json();
