@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { jsonWithSession } from "@/lib/session";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -57,17 +58,11 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // TODO: Create proper JWT session token via NextAuth
-    // For now, return user data — will integrate with NextAuth signIn
-    return NextResponse.json({
-      message: "Login successful!",
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-    });
+    // Set session cookie and return success
+    return jsonWithSession(
+      { message: "Login successful!" },
+      { id: user.id, name: user.name, email: user.email, role: user.role }
+    );
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 });

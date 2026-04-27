@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { jsonWithSession } from "@/lib/session";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // Mark user as verified in database
+    // Mark user as verified and update last login
     const field = method === "phone" ? "phone" : "email";
     await fetch(
       `${SUPABASE_URL}/rest/v1/users?${field}=eq.${encodeURIComponent(key)}`,
@@ -121,16 +122,37 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
           apikey: SUPABASE_SERVICE_KEY,
           Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+          Prefer: "return=representation",
         },
-        body: JSON.stringify({ isVerified: true }),
+        body: JSON.stringify({
+          isVerified: true,
+          lastLoginAt: new Date().toISOString(),
+        }),
       }
     );
 
-    // TODO: Create a session/JWT token for the user
-    return NextResponse.json({
-      message: "Verification successful!",
-      verified: true,
-    });
+    // Fetch user data for session
+    const userRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/users?${field}=eq.${encodeURIComponent(key)}&select=id,name,phone,email,role`,
+      {
+        headers: {
+          apikey: SUPABASE_SERVICE_KEY,
+          Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+        },
+      }
+    );
+    const users = await userRes.json();
+    const user = Array.isArray(users) && users.length > 0 ? users[0] : null;
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+
+    // Set session cookie and return success
+    return jsonWithSession(
+      { message: "Verification successful!", verified: true },
+      { id: user.id, name: user.name, phone: user.phone, email: user.email, role: user.role }
+    );
   } catch (error) {
     console.error("Verify OTP error:", error);
     return NextResponse.json({ error: "Verification failed." }, { status: 500 });
